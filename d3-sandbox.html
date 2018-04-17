@@ -80,7 +80,9 @@
     simulation
         .force("charge_force", d3.forceManyBody())
         .force("center_force", d3.forceCenter(width / 2, height / 2))
-        .force("links", d3.forceLink(links_data).id(function(d) { return d.name; }));
+        .force("links", d3.forceLink(links_data)
+            .id(function(d) { return d.name; })
+            .distance(200));
 
     simulation.on("tick", function(){
         //update circle positions to reflect node updates on each tick of the simulation 
@@ -98,8 +100,12 @@
             .attr("y2", function(d) { return d.target.y; });   
     } );
 
+    //add encompassing group for the zoom 
+    var g = svg.append("g")
+        .attr("class", "everything");
+
     //draw circles for the nodes 
-    var node = svg.append("g")
+    var node = g.append("g")
         .attr("class", "nodes")
         .selectAll("circle")
         .data(nodes_data)
@@ -119,7 +125,7 @@
     }
 
     //draw lines for the links 
-    var link = svg.append("g")
+    var link = g.append("g")
         .attr("class", "links")
         .selectAll("line")
         .data(links_data)
@@ -139,7 +145,6 @@
         }
     }
    
-
     // Create a drag handler
     var drag_handler = d3.drag()
         .on("start", drag_start)
@@ -164,6 +169,17 @@
     } 
 
     drag_handler(node);
+
+    //add zoom capabilities 
+    var zoom_handler = d3.zoom()
+        .on("zoom", zoom_actions);
+
+    //Zoom functions 
+    function zoom_actions(){
+        g.attr("transform", d3.event.transform)
+    }
+
+    zoom_handler(svg);  
     </script>
 </body>
 </html>
