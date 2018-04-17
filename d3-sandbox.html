@@ -11,6 +11,11 @@
             stroke: #fff;
             stroke-width: 1.5px;
         }    
+
+        .nodes text {
+            font: 10px sans-serif;
+            transform: translate(5px, 0px);
+        }
     </style>
 </head>
 <body>
@@ -97,22 +102,36 @@
             .attr("x1", function(d) { return d.source.x; })
             .attr("y1", function(d) { return d.source.y; })
             .attr("x2", function(d) { return d.target.x; })
-            .attr("y2", function(d) { return d.target.y; });   
+            .attr("y2", function(d) { return d.target.y; });  
+
+        // Labels
+        label
+            .attr("transform", function(d) { return "translate(" + (d.x) + "," + (d.y) + ")"; }); 
     } );
 
     //add encompassing group for the zoom 
     var g = svg.append("g")
         .attr("class", "everything");
 
-    //draw circles for the nodes 
-    var node = g.append("g")
+    var gnode = g.append('g')
         .attr("class", "nodes")
-        .selectAll("circle")
+        .selectAll("g")
         .data(nodes_data)
-        .enter()
-        .append("circle")
-            .attr("r", 20)
-            .attr("fill", circleColour);
+        .enter().append("g");
+
+    //draw circles for the nodes 
+    var node = gnode.append("circle")
+        .attr("r", 20)
+        .attr("fill", circleColour);
+
+    gnode.append("title").text(function(d) { return d.name });
+
+    var label = gnode.append("text").text(function(d) { return d.name; });
+
+    label.attr("transform", function(d) {
+        console.log(d.x);
+        return "translate(" + (d.x) + "," + (d.y) + ")";
+    });
 
     //Function to choose what color circle we have
     //Let's return blue for males and red for females
@@ -136,8 +155,7 @@
     //Function to choose the line colour and thickness 
     //If the link type is "A" return green 
     //If the link type is "E" return red 
-    function linkColour(d){
-        console.log(d);    
+    function linkColour(d){ 
         if(d.type == "A"){
             return "green";
         } else {
