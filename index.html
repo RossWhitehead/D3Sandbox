@@ -1,0 +1,97 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="site.css">
+    <script src="./node_modules/vizceral/dist/vizceral.js"></script>
+    <script>
+      function run () {
+        var viz = new Vizceral.default(document.getElementById('vizceral'));
+        viz.updateData({
+          name: 'enders-game',
+          renderer: 'region',
+          maxVolume: 10,
+          nodes: [
+            {name: 'INTERNET'},
+            {name: 'service 1'}
+          ],
+          connections: [
+            {
+              source: 'INTERNET',
+              target: 'service 1',
+              metrics: { normal: 10, warning: 0, danger: 0 },
+              metadata: { streaming: true }
+            }
+          ]
+        });
+        viz.setView();
+        viz.animate();
+        
+        window.setTimeout(
+            function(){
+                viz.updateData({
+                    name: 'enders-game',
+                    renderer: 'region',
+                    maxVolume: 20,
+                    nodes: [
+                        {name: 'INTERNET'},
+                        {name: 'service 1'},
+                        {name: 'service 2'}
+                    ],
+                    connections: [
+                        {
+                        source: 'INTERNET',
+                        target: 'service 1',
+                        metrics: { normal: 10, warning: 0, danger: 0 },
+                        metadata: { streaming: true }
+                        },
+                        {
+                        source: 'INTERNET',
+                        target: 'service 2',
+                        metrics: { normal: 10, warning: 0, danger: 0 },
+                        metadata: { streaming: true }
+                        }
+                    ]
+                    })}, 
+            5000);
+
+        window.setTimeout(
+            function(){
+                viz.updateData({
+                    name: 'enders-game',
+                    renderer: 'region',
+                    maxVolume: 20,
+                    nodes: [
+                        {name: 'INTERNET'},
+                        {name: 'service 1'},
+                        {name: 'service 2'},
+                        {name: 'service 3'}
+                    ],
+                    connections: [
+                        {
+                        source: 'INTERNET',
+                        target: 'service 1',
+                        metrics: { normal: 10, warning: 0, danger: 0 },
+                        metadata: { streaming: false }
+                        },
+                        {
+                        source: 'INTERNET',
+                        target: 'service 2',
+                        metrics: { normal: 10, warning: 0, danger: 0 },
+                        metadata: { streaming: true }
+                        },
+                        {
+                        source: 'INTERNET',
+                        target: 'service 3',
+                        metrics: { normal: 10, warning: 0, danger: 0 },
+                        metadata: { streaming: true }
+                        }
+                    ]
+                    })}, 
+            10000);
+      }
+    </script>
+    <title>Vanilla Vizceral Example with Sample Data</title>
+  </head>
+  <body onload='run()'>
+    <canvas id='vizceral'></canvas>
+  </body>
+</html>
