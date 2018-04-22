@@ -39,33 +39,45 @@
             .attr("r", 5)
             .attr("fill", 'red' );
 
-        var steps = 100,
-            distance = Math.sqrt((cx2-cx1)*(cx2-cx1) + (cy2-cy1)*(cy2-cy1)),
-            speed = 500, //500px per second
-            stepDelay = distance/speed/steps*1000; //ms 
+        var speed = 0.5, //0.5px per ms
+            interval = 10 //10ms interval between position updates
+            intervalDistance = 0.5 * 10;
 
-        var index = 0;
+        var i = 0,
+            limit = 100;
+
         (function loop(){
-            if (index++ > steps-1) return;
-            var packetx = parseFloat(packet.attr('cx')),
-                packety = parseFloat(packet.attr('cy')),
-                targetx = parseFloat(target.attr('cx')),
-                targety = parseFloat(target.attr('cy')),
-                xInterval = (targetx-packetx)/(steps-index+1),
-                yInterval = (targety-packety)/(steps-index+1);
+            i++;
+            if(i == limit) return;
+
+            if (collisionDetected(packet, target)){
+                console.log("collision");
+                return;
+            } 
 
             setTimeout(function(){
-                packet.attr('cx', packetx+xInterval)
-                    .attr('cy', packety+yInterval);
-                target.attr('cy', targety-2);  
+                var vector = new Vector(parseFloat(target.attr('cx'))-parseFloat(packet.attr('cx')), 
+                                        parseFloat(target.attr('cy'))-parseFloat(packet.attr('cy'))),
+                    angle = Math.atan2(vector.y, vector.x) * 180 / Math.PI,
+                    deltaX = intervalDistance*Math.cos(angle),
+                    deltaY = intervalDistance*Math.sin(angle),
+                    cx = parseFloat(packet.attr('cx'))+deltaX,
+                    cy = parseFloat(packet.attr('cy'))+deltaY;
+
+                console.log("Angle:" + angle + " - deltaX:" + deltaX + " - deltaY:" + deltaY);
+
+                packet.attr('cx', cx).attr('cy', cy);
+
+                target.attr('cy', target.attr('cy')-2);  
+
                 loop();
-            }, stepDelay);
+            }, 10);
             })();
 
-        function detectCollision(node1, node2) {
+        function collisionDetected(node1, node2) {
             var boxRadius = 5; 
-            var box1 = getBoundingBox(node1.cx, node1.cy, boxRadius);    //BOUNDING BOX OF THE FIRST OBJECT
-            var box2 = getBoundingBox(node2.cx, node2.cy, boxRadius);    //BOUNDING BOX OF THE SECOND OBJECT
+            var box1 = getBoundingBox(parseFloat(node1.attr('cx')), parseFloat(node1.attr('cy')), boxRadius);   
+            var box2 = getBoundingBox(parseFloat(node2.attr('cx')), parseFloat(node2.attr('cy')), boxRadius);
         
             //CHECK IF THE TWO BOUNDING BOXES OVERLAP
             return !(box2.left > box1.right || 
@@ -76,16 +88,20 @@
 
         function getBoundingBox(x, y, radius)
         {
-            return new Box(x-radius, y-radius, x+radius, y+radius);
+            return new Box(y-radius, x+radius, y+radius, x-radius);
         }
 
-        function Box(x1, y1, x2, y2){
-            this.x1 = x1;
-            this.y1 = y1;
-            this.x2 = x2;
-            this.y2 = y2;
+        function Box(top, right, bottom, left){
+            this.top = top;
+            this.right = right;
+            this.bottom = bottom;
+            this.left = left;
         }
-            
+
+        function Vector(x, y) {
+            this.x = x || 0;
+            this.y = y || 0;
+        }           
     </script>
 </body>
 </html>
