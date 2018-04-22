@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <svg width="960" height="600"></svg>
+
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script>
+        var svg = d3.select('svg'),
+            width = svg.attr('width'),
+            height = svg.attr('height');
+
+        var cx1 = width/3,
+            cy1 = height/3;
+        
+        var source = svg.append('circle')
+            .attr('cx', cx1)
+            .attr('cy', cy1)
+            .attr("r", 30)
+            .attr("fill", 'blue' );
+
+        var cx2 = 2*width/3,
+            cy2 = height/2;
+
+        var target = svg.append('circle')
+            .attr('cx', 2*width/3)
+            .attr('cy', height/2)
+            .attr("r", 30)
+            .attr("fill", 'pink' );
+
+        var packet = svg.append('circle')
+            .attr('cx', cx1)
+            .attr('cy', cy1)
+            .attr("r", 5)
+            .attr("fill", 'red' );
+
+        var steps = 100,
+            distance = Math.sqrt((cx2-cx1)*(cx2-cx1) + (cy2-cy1)*(cy2-cy1)),
+            speed = 500, //500px per second
+            stepDelay = distance/speed/steps*1000; //ms 
+
+        var index = 0;
+        (function loop(){
+            if (index++ > steps-1) return;
+            var packetx = parseFloat(packet.attr('cx')),
+                packety = parseFloat(packet.attr('cy')),
+                targetx = parseFloat(target.attr('cx')),
+                targety = parseFloat(target.attr('cy')),
+                xInterval = (targetx-packetx)/(steps-index+1),
+                yInterval = (targety-packety)/(steps-index+1);
+
+            setTimeout(function(){
+                packet.attr('cx', packetx+xInterval)
+                    .attr('cy', packety+yInterval);
+                target.attr('cy', targety-2);  
+                loop();
+            }, stepDelay);
+            })();
+
+        function detectCollision(node1, node2) {
+            var boxRadius = 5; 
+            var box1 = getBoundingBox(node1.cx, node1.cy, boxRadius);    //BOUNDING BOX OF THE FIRST OBJECT
+            var box2 = getBoundingBox(node2.cx, node2.cy, boxRadius);    //BOUNDING BOX OF THE SECOND OBJECT
+        
+            //CHECK IF THE TWO BOUNDING BOXES OVERLAP
+            return !(box2.left > box1.right || 
+                    box2.right < box1.left || 
+                    box2.top > box1.bottom ||
+                    box2.bottom < box1.top);
+        }
+
+        function getBoundingBox(x, y, radius)
+        {
+            return new Box(x-radius, y-radius, x+radius, y+radius);
+        }
+
+        function Box(x1, y1, x2, y2){
+            this.x1 = x1;
+            this.y1 = y1;
+            this.x2 = x2;
+            this.y2 = y2;
+        }
+            
+    </script>
+</body>
+</html>
